@@ -1,0 +1,39 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: service-apartado-lugares-udp
+  name: service-apartado-lugares-udp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: service-apartado-lugares-udp
+  template:
+    metadata:
+      labels:
+        app: service-apartado-lugares-udp
+    spec:
+      containers:
+        - name: service-apartado-lugares-udp
+          image: sensorregistryqa.azurecr.io/service-apartado-lugares-udp
+          env:
+          - name: TZ
+            value: America/Mexico_City
+          ports:
+          - containerPort: 9019
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: service-apartado-lugares-udp
+  name: service-apartado-lugares-udp
+spec:
+  ports:
+  - port: 9019
+    name: high
+    protocol: TCP
+    targetPort: 9019
+  selector:
+    app: service-apartado-lugares-udp
