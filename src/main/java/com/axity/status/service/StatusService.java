@@ -20,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.axity.status.model.AppModel;
 import com.axity.status.model.Modelo;
+import com.axity.status.model.SmsModel;
 import com.axity.status.service.model.ServicioModel;
 import com.axity.status.util.TransactionCode;
 import com.google.gson.Gson;
@@ -27,7 +28,9 @@ import com.google.gson.GsonBuilder;
 @Service
 public class StatusService {
 	   @Value("${url.app}")
-	   private String host;
+	   private String hostapp;
+	   @Value("${url.sms}")
+	   private String hostsms;
 	private static final Set<HttpStatus> validStates = EnumSet.of(HttpStatus.OK, HttpStatus.CREATED, HttpStatus.ACCEPTED);
 
 	private static final Logger LOG = LoggerFactory.getLogger(StatusService.class);
@@ -37,6 +40,7 @@ public class StatusService {
 		try {
 			List<ServicioModel> consulta = new ArrayList<>();
 			consulta.add(consultaApp());
+			consulta.add(consultaSMS());
 			response.setServicios(consulta);
 			response.setCode(TransactionCode.OK.getCode());
 			response.setMessage(TransactionCode.OK.getMessage());
@@ -53,7 +57,7 @@ public class StatusService {
 	{
 	    
 		ServicioModel service = new ServicioModel();
-		final String uri = host;
+		final String uri = hostapp;
 	    RestTemplate restTemplate = new RestTemplate();
 	 
 	    AppModel newAppModel = new AppModel();
@@ -78,6 +82,34 @@ public class StatusService {
 	    }
 	    return service;
 	    //Use the response.getBody()
+	}
+	private ServicioModel consultaSMS()
+	{
+		ServicioModel serviciosms = new ServicioModel();
+		final String uri = hostsms;
+	    RestTemplate restTemplate = new RestTemplate();
+	    
+	    SmsModel newSmsModel = new SmsModel();
+	    newSmsModel.setEmail("luis.buitrago@axity.com");
+	    
+	    HttpHeaders headers = new HttpHeaders();
+	    headers.setContentType(MediaType.APPLICATION_JSON);
+	    
+	    headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+	    
+	    Gson gson = new GsonBuilder().create();
+	    String json = gson.toJson(newSmsModel);
+	    HttpEntity<String> request = new HttpEntity<>(json, headers);
+	    
+	    serviciosms.setName("sms"); 
+	    ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.POST, request, String.class);
+	    if (validStates.contains(response.getStatusCode())) {
+	    	serviciosms.setStatus("Activo");
+	    	String respuestabody = response.getBody();
+	    LOG.info("El contenido de la respuesta es "+respuestabody);
+	    }
+	    
+		return serviciosms;
 	}
 
 }
