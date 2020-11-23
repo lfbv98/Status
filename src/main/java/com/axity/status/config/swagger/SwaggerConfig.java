@@ -50,7 +50,7 @@ public class SwaggerConfig {
 
 
    private ApiInfo apiInfo() {
-       ApiInfo apiInfo = new ApiInfo("API Apartado de lugares de UDP ", "API para el apartado de lugares", "v.1.0", "",
+       ApiInfo apiInfo = new ApiInfo("API Status de Servicios ", "API para el status de los servicios", "v.1.0", "",
                new Contact("", "", ""), "", "");
        return apiInfo;
    }    
